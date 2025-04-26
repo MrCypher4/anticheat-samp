@@ -1,0 +1,113 @@
+#Name: anti key longor kontol
+#Version: Mentok gada lagi
+#Developer: Vatierahandal
+
+using System;
+using System.IO;
+using System.Security.Cryptography;
+
+namespace SentinelShield
+{
+    class Program
+    {
+        static string gtaPath = @"C:\Program Files (x86)\Rockstar Games\GTA San Andreas";
+        static string[] suspiciousFiles = { "monetloader.asi", "monetloader.dll", "keylogger.cs", "injector.dll", "hacktool.asi", "hook.dll", "logger.asi" };
+        static string validSampHash = "DUMMY_HASH_SAMP"; // Ganti hash sesuai file bersih lu
+        static string validGtaHash = "DUMMY_HASH_GTA";   // Ganti hash sesuai file bersih lu
+
+        static void Main(string[] args)
+        {
+            Console.Title = "SentinelShield - AntiCheat Detector";
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("=== SentinelShield: Starting Scan ===\n");
+
+            ScanFolder("cleo");
+            ScanFolder("modloader");
+            VerifyGameFiles();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nScan completed. No critical issues detected.");
+            Console.ResetColor();
+            Console.ReadKey();
+        }
+
+        static void ScanFolder(string folderName)
+        {
+            string path = Path.Combine(gtaPath, folderName);
+
+            if (Directory.Exists(path))
+            {
+                Console.WriteLine($"[SCAN] {folderName.ToUpper()} folder detected, scanning...");
+                foreach (string file in Directory.GetFiles(path, "*.*", SearchOption.AllDirectories))
+                {
+                    AnalyzeFile(file);
+                }
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"[WARN] {folderName.ToUpper()} folder not found.");
+                Console.ResetColor();
+            }
+        }
+
+        static void AnalyzeFile(string filepath)
+        {
+            string filename = Path.GetFileName(filepath).ToLower();
+
+            foreach (string suspicious in suspiciousFiles)
+            {
+                if (filename.Contains(suspicious))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"[ALERT] Suspicious file detected: {filename}");
+                    Console.WriteLine("Action: REMOVE IMMEDIATELY!");
+                    Console.ResetColor();
+                    Environment.Exit(1);
+                }
+            }
+        }
+
+        static void VerifyGameFiles()
+        {
+            Console.WriteLine("[VERIFY] Checking main game files integrity...");
+
+            ValidateFile(Path.Combine(gtaPath, "samp.exe"), validSampHash);
+            ValidateFile(Path.Combine(gtaPath, "gta_sa.exe"), validGtaHash);
+        }
+
+        static void ValidateFile(string filePath, string validHash)
+        {
+            if (File.Exists(filePath))
+            {
+                string fileHash = CalculateHash(filePath);
+
+                if (fileHash != validHash)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"[WARN] Hash mismatch detected: {Path.GetFileName(filePath)}");
+                    Console.WriteLine("Potential unauthorized modification!");
+                    Console.ResetColor();
+                    Environment.Exit(1);
+                }
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"[ERROR] Missing critical file: {Path.GetFileName(filePath)}");
+                Console.ResetColor();
+                Environment.Exit(1);
+            }
+        }
+
+        static string CalculateHash(string filePath)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            using (FileStream stream = File.OpenRead(filePath))
+            {
+                byte[] hash = sha256.ComputeHash(stream);
+                return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+            }
+        }
+    }
+}
