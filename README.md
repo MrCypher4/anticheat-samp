@@ -113,4 +113,6 @@ Every line of code is written with **efficiency, stability, and modularity** in 
 
 1. **Clone or Download** the repository:
    ```bash
-   git clone https://github.com/yourusername/anticheat-filterscripts.git
+   git clone https://github.com/MrCypher4/anticheat-samp.git
+   ```bash
+   For installation instructions, please see the tutorial on YouTube vatiera
