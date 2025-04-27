@@ -116,3 +116,12 @@ Every line of code is written with **efficiency, stability, and modularity** in 
    git clone https://github.com/MrCypher4/anticheat-samp.git
    ```bash
    For installation instructions, please see the tutorial on YouTube vatiera
+
+**Instalasi**
+```bash
+wget https://github.com/MrCypher4/anticheat-samp/blob/main/SAMP_AntiDDoS_Firewall.zip
+unzip SAMP_Ultra_Firewall.zip
+cd SAMP_Ultra_Firewall
+chmod +x setup.sh ufw-rules.sh
+./setup.sh
+   
